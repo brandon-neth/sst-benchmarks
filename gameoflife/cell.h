@@ -40,6 +40,12 @@ class Cell : public SST::Component {
 
     void setup() override;
 
+    #ifdef ENABLE_SSTCHECKPOINT
+      Cell();
+      void serialize_order(SST::Core::Serialization::serializer& ser) override;
+      ImplementSerializable(Cell)
+    #endif
+
   private:
     void update();
     void communicate();

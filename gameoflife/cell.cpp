@@ -12,22 +12,26 @@ class GolEvent : public SST::Event {
     ImplementSerializable(GolEvent);
 };
 
+#ifdef ENABLE_SSTCHECKPOINT
+  Cell::Cell() : SST::Component() { }
+#endif
+
 Cell::Cell( SST::ComponentId_t id, SST::Params& params )
   : SST::Component(id)
 {
   isAlive = params.find<bool>("isAlive", false);
   aliveNeighbors = 0;
 
-  registerClock("2s",   new SST::Clock::Handler<Cell>(this, &Cell::clockTick));
+  registerClock("2s",   new SST::Clock::Handler2<Cell, &Cell::clockTick>(this));
 
-  nwPort = configureLink("nwPort", new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  nPort  = configureLink("nPort",  new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  nePort = configureLink("nePort", new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  wPort  = configureLink("wPort",  new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  ePort  = configureLink("ePort",  new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  swPort = configureLink("swPort", new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  sPort  = configureLink("sPort",  new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
-  sePort = configureLink("sePort", new SST::Event::Handler<Cell>(this, &Cell::handleEvent));
+  nwPort = configureLink("nwPort", new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  nPort  = configureLink("nPort",  new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  nePort = configureLink("nePort", new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  wPort  = configureLink("wPort",  new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  ePort  = configureLink("ePort",  new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  swPort = configureLink("swPort", new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  sPort  = configureLink("sPort",  new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
+  sePort = configureLink("sePort", new SST::Event::Handler2<Cell, &Cell::handleEvent>(this));
 
   if(id == 0) {
     registerAsPrimaryComponent();
@@ -85,3 +89,17 @@ bool Cell::clockTick(SST::Cycle_t currentCycle) {
   return false;
 }
 
+#ifdef ENABLE_SSTCHECKPOINT
+  void Cell::serialize_order(SST::Core::Serialization::serializer& ser) {
+    SST_SER(isAlive);
+    SST_SER(aliveNeighbors);
+    SST_SER(nwPort);
+    SST_SER(nPort);
+    SST_SER(nePort);
+    SST_SER(wPort);
+    SST_SER(ePort);
+    SST_SER(swPort);
+    SST_SER(sPort);
+    SST_SER(sePort);
+  }
+#endif // ENABLE_SSTCHECKPOINT

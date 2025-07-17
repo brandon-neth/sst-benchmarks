@@ -1,8 +1,9 @@
 CXX=$(shell sst-config --CXX)
 CXXFLAGS=$(shell sst-config --ELEMENT_CXXFLAGS) -g
 LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
-PARAMS=
+# PARAMS=
 #PARAMS="-DENABLE_SSTDBG"
+PARAMS="-DENABLE_SSTCHECKPOINT"
 
 SRCS=cell.cpp
 
